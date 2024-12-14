@@ -18,6 +18,7 @@ const chatTopic = require("./chatTopic.route");
 const chat = require("./chat.route");
 const video = require("./video.route");
 const chatBoat = require("./chatBoat.route");
+const payment = require("./payment.route");
 
 route.use("/chat", chat);
 route.use("/chatTopic", chatTopic);
@@ -36,5 +37,6 @@ route.use("/", user);
 route.use("/setting", setting);
 route.use("/video", video);
 route.use("/chatBoat", chatBoat);
+route.use("/payment", payment);
 
 module.exports = route;

@@ -1,58 +1,128 @@
-// models/Payment.js
 const mongoose = require("mongoose");
 
-const paymentSchema = new mongoose.Schema(
+const PaymentTransactionSchema = new mongoose.Schema(
   {
     merchantRID: {
       type: String,
       required: true,
+      unique: true,
+      index: true,
     },
+
     amount: {
       type: Number,
       required: true,
+      min: 0,
     },
-    validTimeLimit: {
-      type: Number,
-      required: true,
-    },
-    returnUrl: {
+
+    currency: {
       type: String,
       required: true,
+      enum: ["LKR", "USD"],
+      default: "LKR",
     },
-    customerMail: {
+
+    customerEmail: {
       type: String,
       required: true,
+      trim: true,
+      lowercase: true,
     },
+
     customerMobile: {
       type: String,
       required: true,
+      trim: true,
     },
+
     mode: {
       type: String,
-      enum: ["WEB", "MOBILE"],
-      required: true,
+      enum: ["WEB", "SMS", "MAIL"],
+      default: "WEB",
     },
+
     orderSummary: {
       type: String,
-      required: true,
+      trim: true,
     },
+
     customerReference: {
       type: String,
-      required: true,
+      trim: true,
     },
-    transactionId: {
+
+    paymentUrl: {
       type: String,
-      required: true,
+      trim: true,
     },
+
     status: {
       type: String,
-      enum: ["PENDING", "COMPLETED", "FAILED"],
+      enum: ["PENDING", "SUCCESS", "FAILED", "CANCELLED"],
       default: "PENDING",
     },
+
+    transactionId: {
+      type: String,
+      trim: true,
+    },
+
+    gatewayResponse: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
+
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+
+    updatedAt: {
+      type: Date,
+      default: null,
+    },
+
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      default: null,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    strict: true,
+  }
 );
 
-const Payment = mongoose.model("Payment", paymentSchema);
+// Indexes for improved query performance
+PaymentTransactionSchema.index({
+  merchantRID: 1,
+  status: 1,
+  createdAt: -1,
+});
 
-module.exports = Payment;
+// Virtual for formatted amount with currency
+PaymentTransactionSchema.virtual("formattedAmount").get(function () {
+  return `${this.currency} ${this.amount.toFixed(2)}`;
+});
+
+// Method to check if payment is successful
+PaymentTransactionSchema.methods.isSuccessful = function () {
+  return this.status === "SUCCESS";
+};
+
+// Pre-save hook to validate email format
+PaymentTransactionSchema.pre("save", function (next) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (this.customerEmail && !emailRegex.test(this.customerEmail)) {
+    next(new Error("Invalid email format"));
+  }
+  next();
+});
+
+// Create and export the model
+const PaymentTransaction = mongoose.model(
+  "PaymentTransaction",
+  PaymentTransactionSchema
+);
+
+module.exports = PaymentTransaction;
