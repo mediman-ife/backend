@@ -422,6 +422,7 @@ exports.update = async (req, res) => {
 
     if (req.file) {
       var image_ = admin?.image?.split("storage");
+      console.log(image_,"image_")
       if(image_){
 
         if (image_[1] !== "/male.png" && image_[1] !== "/female.png") {
@@ -435,6 +436,7 @@ exports.update = async (req, res) => {
         ? process?.env?.baseURL + req?.file?.path
         : admin.image;
     }
+
 
     admin.name = req?.body?.name || admin?.name;
     admin.email = req?.body?.email || admin?.email;

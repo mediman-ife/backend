@@ -13,6 +13,7 @@ module.exports = async (req, res, next) => {
         .status(403)
         .json({ status: false, message: 'Oops ! You are not Authorized' });
     }
+    
     const decodeToken = await jwt.verify(
       Authorization,
       process?.env?.JWT_SECRET
