@@ -12,7 +12,7 @@ const adminSchema = new mongoose.Schema(
             required: true,
         },
         image: String,
-        purchaseCode: String
+        // purchaseCode: String
     },
     {
         timestamps: true,
